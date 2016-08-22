@@ -36,7 +36,7 @@
 
                     httpInterceptor.request = function (config) {
                         //I want to have a condition to not show the overlay on specific calls
-                        if(shouldShowOverlay(config.method, config.url))
+                        if(shouldShowOverlay(config.method, config.url, config.params))
                             processRequest();
                         return config || $q.when(config);
                     };
@@ -102,17 +102,20 @@
                     overlayDisplayService.hide(overlayContainer);
                 }
 
-                function shouldShowOverlay(method, url){
+                function shouldShowOverlay(method, url, params){
                     var searchCriteria = {
                         method: method,
                         url: url
                     }
-                    return angular.isUndefined(findUrl(overlayConfig.exceptUrls, searchCriteria));
+                    return angular.isUndefined(findUrl(overlayConfig.exceptUrls, searchCriteria, params));
                 }
 
-                function findUrl(urlList, searchCriteria){
+                function findUrl(urlList, searchCriteria, params){
                     var retVal = undefined;
                     angular.forEach(urlList, function(url){
+                        if('params' in url){
+                            angular.extend(searchCriteria, {params: params});
+                        }
                         if(angular.equals(url, searchCriteria)){
                             retVal = true;
                             return false; //break out of forEach
